@@ -1,0 +1,30 @@
+{
+  "name": "@app-monitor/api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@app-monitor/shared": "*",
+    "@prisma/client": "^6.0.0",
+    "bullmq": "^5.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0",
+    "express": "^4.21.0",
+    "ioredis": "^5.4.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/supertest": "^6.0.0",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0",
+    "vitest": "^2.0.0"
+  }
+}
