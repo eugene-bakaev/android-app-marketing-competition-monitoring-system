@@ -71,6 +71,7 @@ services:
       dockerfile: Dockerfile.web
       args:
         VITE_API_URL: ''
+        LOCAL_DEV: 'true'
     ports:
       - '8080:80'
     depends_on:
