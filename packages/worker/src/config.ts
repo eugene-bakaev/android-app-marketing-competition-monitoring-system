@@ -13,4 +13,8 @@ export const config = {
     bucket: process.env.S3_BUCKET!,
   },
   concurrency: parseInt(process.env.WORKER_CONCURRENCY || '2', 10),
+  scraper: {
+    pageTimeoutMs: parseInt(process.env.SCRAPER_PAGE_TIMEOUT_MS || '30000', 10),
+    selectorTimeoutMs: parseInt(process.env.SCRAPER_SELECTOR_TIMEOUT_MS || '10000', 10),
+  },
 };

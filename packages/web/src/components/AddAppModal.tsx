@@ -36,16 +36,17 @@ export function AddAppModal({ open, onClose }: AddAppModalProps) {
     setUrlTouched(true);
     if (!validatePlayStoreUrl(url)) return;
     try {
-      await createApp.mutateAsync({
-        name,
-        playStoreUrl: url,
-        intervalValue,
-        intervalUnit,
-      });
-      setName('');
-      setUrl('');
-      setUrlTouched(false);
-      onClose();
+      await createApp.mutateAsync(
+        { name, playStoreUrl: url, intervalValue, intervalUnit },
+        {
+          onSuccess: () => {
+            setName('');
+            setUrl('');
+            setUrlTouched(false);
+            onClose();
+          },
+        }
+      );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to create app');
     }

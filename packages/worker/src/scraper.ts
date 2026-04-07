@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import { config } from './config';
 
 export interface ScrapeResult {
   screenshot: Buffer;
@@ -16,13 +17,17 @@ export async function scrapePlayStorePage(url: string): Promise<ScrapeResult> {
     ],
   });
 
+  const page = await browser.newPage();
+
   try {
-    const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 });
 
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+    await page.goto(url, {
+      waitUntil: 'networkidle2',
+      timeout: config.scraper.pageTimeoutMs,
+    });
 
-    await page.waitForSelector('h1', { timeout: 10000 });
+    await page.waitForSelector('h1', { timeout: config.scraper.selectorTimeoutMs });
 
     const screenshot = await page.screenshot({ fullPage: true, type: 'png' });
 
@@ -40,6 +45,7 @@ export async function scrapePlayStorePage(url: string): Promise<ScrapeResult> {
 
     return { screenshot: Buffer.from(screenshot), iconUrl };
   } finally {
+    await page.close();
     await browser.close();
   }
 }

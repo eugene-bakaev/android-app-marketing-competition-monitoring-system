@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "screenshots" ALTER COLUMN "s3Key" DROP NOT NULL,
+ALTER COLUMN "s3Url" DROP NOT NULL;

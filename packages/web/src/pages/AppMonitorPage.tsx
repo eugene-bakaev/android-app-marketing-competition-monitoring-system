@@ -42,6 +42,7 @@ export function AppMonitorPage() {
   const allScreenshots = screenshotPages?.pages.flatMap((p) => p.data) ?? [];
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showEdit, setShowEdit] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
@@ -58,6 +59,7 @@ export function AppMonitorPage() {
   const goTo = (index: number) => {
     if (index >= 0 && index < allScreenshots.length) {
       setSelectedId(allScreenshots[index].id);
+      setImgError(false);
     }
   };
 
@@ -280,12 +282,18 @@ export function AppMonitorPage() {
                       Screenshot failed: {selected.error || 'Unknown error'}
                     </span>
                   </div>
+                ) : imgError || !selected.s3Url ? (
+                  <div className="flex items-center gap-3 rounded-lg border border-muted bg-muted/30 p-6 text-muted-foreground">
+                    <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-sm">Screenshot could not be loaded.</span>
+                  </div>
                 ) : (
                   <img
                     key={selected.id}
                     src={selected.s3Url}
                     alt={`Screenshot taken at ${new Date(selected.takenAt).toLocaleString()}`}
                     className="w-full rounded-lg border"
+                    onError={() => setImgError(true)}
                   />
                 )}
               </div>
