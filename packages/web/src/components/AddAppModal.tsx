@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IntervalUnit } from '@app-monitor/shared';
+import { IntervalUnit, validatePlayStoreUrl } from '@app-monitor/shared';
 import { IntervalSelector } from './IntervalSelector';
 import { useCreateApp } from '../hooks/useApps';
 import {
@@ -7,7 +7,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,13 +20,20 @@ interface AddAppModalProps {
 export function AddAppModal({ open, onClose }: AddAppModalProps) {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
+  const [urlTouched, setUrlTouched] = useState(false);
   const [intervalValue, setIntervalValue] = useState(1);
   const [intervalUnit, setIntervalUnit] = useState<IntervalUnit>(IntervalUnit.HOUR);
+
+  const urlError = urlTouched && url.length > 0 && !validatePlayStoreUrl(url)
+    ? 'Must be a valid Google Play URL: play.google.com/store/apps/details?id=…'
+    : null;
 
   const createApp = useCreateApp();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUrlTouched(true);
+    if (!validatePlayStoreUrl(url)) return;
     try {
       await createApp.mutateAsync({
         name,
@@ -37,6 +43,7 @@ export function AddAppModal({ open, onClose }: AddAppModalProps) {
       });
       setName('');
       setUrl('');
+      setUrlTouched(false);
       onClose();
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to create app');
@@ -48,9 +55,13 @@ export function AddAppModal({ open, onClose }: AddAppModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add App to Monitor</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Paste a Google Play URL and set how often to take screenshots.
+          </p>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+
+        <form onSubmit={handleSubmit} className="space-y-5 pt-1">
+          <div className="space-y-1.5">
             <Label htmlFor="app-name">App Name</Label>
             <Input
               id="app-name"
@@ -58,20 +69,27 @@ export function AddAppModal({ open, onClose }: AddAppModalProps) {
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Call of Duty Mobile"
               required
+              autoFocus
             />
           </div>
-          <div className="space-y-2">
+
+          <div className="space-y-1.5">
             <Label htmlFor="play-url">Google Play URL</Label>
             <Input
               id="play-url"
-              type="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
+              onBlur={() => setUrlTouched(true)}
               placeholder="https://play.google.com/store/apps/details?id=..."
               required
+              className={urlError ? 'border-destructive focus-visible:ring-destructive' : ''}
             />
+            {urlError && (
+              <p className="text-xs text-destructive">{urlError}</p>
+            )}
           </div>
-          <div className="space-y-2">
+
+          <div className="space-y-1.5">
             <Label>Screenshot Interval</Label>
             <IntervalSelector
               value={intervalValue}
@@ -80,14 +98,15 @@ export function AddAppModal({ open, onClose }: AddAppModalProps) {
               onUnitChange={setIntervalUnit}
             />
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+
+          <div className="flex justify-end gap-2 pt-1">
+            <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
             </Button>
             <Button type="submit" disabled={createApp.isPending}>
               {createApp.isPending ? 'Adding...' : 'Add App'}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
