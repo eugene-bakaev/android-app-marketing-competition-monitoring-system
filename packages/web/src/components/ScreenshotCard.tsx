@@ -26,7 +26,7 @@ export function ScreenshotCard({ screenshot }: ScreenshotCardProps) {
     <div className="mb-6">
       <p className="text-xs text-muted-foreground mb-2">{time}</p>
       <img
-        src={screenshot.s3Url}
+        src={screenshot.s3Url ?? undefined}
         alt={`Screenshot taken at ${time}`}
         className="w-full rounded-lg border object-cover"
       />

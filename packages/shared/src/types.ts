@@ -18,8 +18,8 @@ export interface App {
 export interface Screenshot {
   id: string;
   appId: string;
-  s3Key: string;
-  s3Url: string;
+  s3Key: string | null;
+  s3Url: string | null;
   takenAt: string;
   status: ScreenshotStatus;
   error: string | null;

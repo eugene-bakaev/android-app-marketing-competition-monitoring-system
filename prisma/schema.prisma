@@ -41,8 +41,8 @@ model App {
 model Screenshot {
   id        String           @id @default(uuid())
   appId     String
-  s3Key     String
-  s3Url     String
+  s3Key     String?
+  s3Url     String?
   takenAt   DateTime
   status    ScreenshotStatus
   error     String?

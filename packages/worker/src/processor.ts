@@ -58,11 +58,9 @@ export async function processScreenshotJob(job: Job<ScreenshotJobData>): Promise
     await prisma.screenshot.create({
       data: {
         appId: app.id,
-        s3Key: '',
-        s3Url: '',
         takenAt,
         status: 'FAILED',
-        error: errorMessage,
+        error: errorMessage.slice(0, 500),
       },
     });
 
