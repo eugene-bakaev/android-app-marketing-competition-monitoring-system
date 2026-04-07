@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../hooks/useApps';
 import { useScreenshots } from '../hooks/useScreenshots';
 import type { Screenshot } from '@app-monitor/shared';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, ExternalLink, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { EditAppModal } from '../components/EditAppModal';
+import { ArrowLeft, ExternalLink, ChevronLeft, ChevronRight, AlertCircle, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 function groupByDate(screenshots: Screenshot[]) {
@@ -39,7 +41,9 @@ export function AppMonitorPage() {
 
   const allScreenshots = screenshotPages?.pages.flatMap((p) => p.data) ?? [];
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showEdit, setShowEdit] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   // Auto-select first screenshot when loaded
   useEffect(() => {
@@ -57,9 +61,44 @@ export function AppMonitorPage() {
     }
   };
 
+  // Page title
+  useEffect(() => {
+    document.title = app ? `${app.name} — App Monitor` : 'App Monitor';
+    return () => { document.title = 'App Monitor'; };
+  }, [app?.name]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === 'ArrowLeft') goTo(selectedIndex - 1);
+      if (e.key === 'ArrowRight') goTo(selectedIndex + 1);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [selectedIndex, allScreenshots.length]);
+
   if (appLoading) {
     return (
-      <div className="flex items-center justify-center py-24 text-muted-foreground">Loading...</div>
+      <div className="flex flex-col gap-6">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-14 w-14 rounded-xl flex-shrink-0" />
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-40" />
+            <Skeleton className="h-4 w-64" />
+          </div>
+        </div>
+        <Skeleton className="h-px w-full" />
+        <div className="flex gap-6">
+          <div className="w-56 flex flex-col gap-2">
+            <Skeleton className="h-4 w-20" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+          </div>
+          <Skeleton className="flex-1 h-96 rounded-lg" />
+        </div>
+      </div>
     );
   }
   if (!app) {
@@ -87,8 +126,19 @@ export function AppMonitorPage() {
           ) : (
             <div className="h-14 w-14 rounded-xl bg-muted flex-shrink-0" />
           )}
-          <div>
-            <h2 className="text-xl font-bold">{app.name}</h2>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold">{app.name}</h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-muted-foreground hover:text-foreground flex-shrink-0"
+                onClick={() => setShowEdit(true)}
+                title="Edit app"
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </div>
             <div className="flex items-center gap-3 mt-0.5 text-sm text-muted-foreground flex-wrap">
               <span>{app.packageId}</span>
               <a
@@ -242,6 +292,15 @@ export function AppMonitorPage() {
             ) : null}
           </div>
         </div>
+      )}
+
+      {app && (
+        <EditAppModal
+          app={app}
+          open={showEdit}
+          onClose={() => setShowEdit(false)}
+          onDelete={() => navigate('/')}
+        />
       )}
     </div>
   );

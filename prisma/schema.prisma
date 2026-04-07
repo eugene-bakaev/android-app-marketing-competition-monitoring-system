@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum IntervalUnit {
+  MINUTE
+  HOUR
+  DAY
+  WEEK
+  MONTH
+}
+
+enum ScreenshotStatus {
+  SUCCESS
+  FAILED
+}
+
+model App {
+  id            String            @id @default(uuid())
+  name          String
+  playStoreUrl  String
+  packageId     String            @unique
+  iconUrl       String?
+  intervalValue Int
+  intervalUnit  IntervalUnit
+  isActive      Boolean           @default(true)
+  lastStatus    ScreenshotStatus?
+  lastCheckedAt DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  screenshots   Screenshot[]
+
+  @@map("apps")
+}
+
+model Screenshot {
+  id        String           @id @default(uuid())
+  appId     String
+  s3Key     String
+  s3Url     String
+  takenAt   DateTime
+  status    ScreenshotStatus
+  error     String?
+  createdAt DateTime         @default(now())
+  app       App              @relation(fields: [appId], references: [id], onDelete: Cascade)
+
+  @@index([appId, takenAt(sort: Desc)])
+  @@map("screenshots")
+}

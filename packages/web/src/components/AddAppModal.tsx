@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { IntervalUnit, validatePlayStoreUrl } from '@app-monitor/shared';
 import { IntervalSelector } from './IntervalSelector';
 import { useCreateApp } from '../hooks/useApps';
@@ -46,7 +47,7 @@ export function AddAppModal({ open, onClose }: AddAppModalProps) {
       setUrlTouched(false);
       onClose();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to create app');
+      toast.error(err instanceof Error ? err.message : 'Failed to create app');
     }
   };
 
