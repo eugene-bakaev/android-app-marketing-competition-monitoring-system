@@ -4,7 +4,7 @@ dockerfilePath = "Dockerfile"
 dockerBuildTarget = "api"
 
 [deploy]
-startCommand = "PRISMA_HIDE_UPDATE_MESSAGE=1 packages/api/node_modules/.bin/prisma migrate deploy && packages/api/node_modules/.bin/prisma generate && node packages/api/dist/index.js"
+startCommand = "sh -c 'PRISMA_HIDE_UPDATE_MESSAGE=1 packages/api/node_modules/.bin/prisma migrate deploy && packages/api/node_modules/.bin/prisma generate && node packages/api/dist/index.js'"
 healthcheckPath = "/api/apps"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
