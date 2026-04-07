@@ -1,4 +1,5 @@
 import type { Screenshot } from '@app-monitor/shared';
+import { AlertCircle } from 'lucide-react';
 
 interface ScreenshotCardProps {
   screenshot: Screenshot;
@@ -9,35 +10,25 @@ export function ScreenshotCard({ screenshot }: ScreenshotCardProps) {
 
   if (screenshot.status === 'FAILED') {
     return (
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ color: '#666', fontSize: 14, marginBottom: 8 }}>
-          Screenshot time: {time}
-        </div>
-        <div
-          style={{
-            border: '2px solid #e74c3c',
-            borderRadius: 8,
-            padding: 24,
-            background: '#fdf0ef',
-            color: '#c0392b',
-            textAlign: 'center',
-          }}
-        >
-          Screenshot failed: {screenshot.error || 'Unknown error'}
+      <div className="mb-6">
+        <p className="text-xs text-muted-foreground mb-2">{time}</p>
+        <div className="flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
+          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          <span className="text-sm">
+            Screenshot failed: {screenshot.error || 'Unknown error'}
+          </span>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ color: '#666', fontSize: 14, marginBottom: 8 }}>
-        Screenshot time: {time}
-      </div>
+    <div className="mb-6">
+      <p className="text-xs text-muted-foreground mb-2">{time}</p>
       <img
         src={screenshot.s3Url}
         alt={`Screenshot taken at ${time}`}
-        style={{ width: '100%', borderRadius: 8, border: '1px solid #ddd' }}
+        className="w-full rounded-lg border object-cover"
       />
     </div>
   );

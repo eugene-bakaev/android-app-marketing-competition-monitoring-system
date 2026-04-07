@@ -45,6 +45,7 @@ export async function processScreenshotJob(job: Job<ScreenshotJobData>): Promise
       where: { id: app.id },
       data: {
         lastStatus: 'SUCCESS',
+        lastCheckedAt: takenAt,
         ...(iconUrl ? { iconUrl } : {}),
       },
     });
@@ -67,7 +68,7 @@ export async function processScreenshotJob(job: Job<ScreenshotJobData>): Promise
 
     await prisma.app.update({
       where: { id: app.id },
-      data: { lastStatus: 'FAILED' },
+      data: { lastStatus: 'FAILED', lastCheckedAt: takenAt },
     });
 
     throw error;

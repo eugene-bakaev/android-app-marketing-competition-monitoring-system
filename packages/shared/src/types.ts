@@ -10,6 +10,7 @@ export interface App {
   intervalUnit: IntervalUnit;
   isActive: boolean;
   lastStatus: ScreenshotStatus | null;
+  lastCheckedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

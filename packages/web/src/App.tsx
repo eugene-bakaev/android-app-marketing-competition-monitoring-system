@@ -4,8 +4,8 @@ import { AppMonitorPage } from './pages/AppMonitorPage';
 
 export function App() {
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px' }}>
-      <h1 style={{ marginBottom: 24 }}>App Monitor</h1>
+    <div className="mx-auto max-w-4xl px-4 py-8">
+      <h1 className="text-2xl font-bold mb-8 text-foreground">App Monitor</h1>
       <Routes>
         <Route path="/" element={<AppListPage />} />
         <Route path="/apps/:id" element={<AppMonitorPage />} />

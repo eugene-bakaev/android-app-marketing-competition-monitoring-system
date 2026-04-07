@@ -1,22 +1,40 @@
 import { useState } from 'react';
-import { IntervalUnit } from '@app-monitor/shared';
+import { toast } from 'sonner';
+import { IntervalUnit, validatePlayStoreUrl } from '@app-monitor/shared';
 import { IntervalSelector } from './IntervalSelector';
 import { useCreateApp } from '../hooks/useApps';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface AddAppModalProps {
+  open: boolean;
   onClose: () => void;
 }
 
-export function AddAppModal({ onClose }: AddAppModalProps) {
+export function AddAppModal({ open, onClose }: AddAppModalProps) {
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
+  const [urlTouched, setUrlTouched] = useState(false);
   const [intervalValue, setIntervalValue] = useState(1);
   const [intervalUnit, setIntervalUnit] = useState<IntervalUnit>(IntervalUnit.HOUR);
+
+  const urlError = urlTouched && url.length > 0 && !validatePlayStoreUrl(url)
+    ? 'Must be a valid Google Play URL: play.google.com/store/apps/details?id=…'
+    : null;
 
   const createApp = useCreateApp();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUrlTouched(true);
+    if (!validatePlayStoreUrl(url)) return;
     try {
       await createApp.mutateAsync({
         name,
@@ -24,64 +42,56 @@ export function AddAppModal({ onClose }: AddAppModalProps) {
         intervalValue,
         intervalUnit,
       });
+      setName('');
+      setUrl('');
+      setUrlTouched(false);
       onClose();
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to create app');
+      toast.error(err instanceof Error ? err.message : 'Failed to create app');
     }
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: 'white',
-          padding: 24,
-          borderRadius: 8,
-          minWidth: 400,
-          maxWidth: 500,
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 style={{ marginTop: 0 }}>Add App to Monitor</h2>
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', marginBottom: 4 }}>App Name</label>
-            <input
-              type="text"
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Add App to Monitor</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Paste a Google Play URL and set how often to take screenshots.
+          </p>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-5 pt-1">
+          <div className="space-y-1.5">
+            <Label htmlFor="app-name">App Name</Label>
+            <Input
+              id="app-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g., Call of Duty Mobile"
               required
-              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+              autoFocus
             />
           </div>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', marginBottom: 4 }}>Google Play URL</label>
-            <input
-              type="url"
+
+          <div className="space-y-1.5">
+            <Label htmlFor="play-url">Google Play URL</Label>
+            <Input
+              id="play-url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
+              onBlur={() => setUrlTouched(true)}
               placeholder="https://play.google.com/store/apps/details?id=..."
               required
-              style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+              className={urlError ? 'border-destructive focus-visible:ring-destructive' : ''}
             />
+            {urlError && (
+              <p className="text-xs text-destructive">{urlError}</p>
+            )}
           </div>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', marginBottom: 4 }}>Screenshot Interval</label>
+
+          <div className="space-y-1.5">
+            <Label>Screenshot Interval</Label>
             <IntervalSelector
               value={intervalValue}
               unit={intervalUnit}
@@ -89,16 +99,17 @@ export function AddAppModal({ onClose }: AddAppModalProps) {
               onUnitChange={setIntervalUnit}
             />
           </div>
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-            <button type="button" onClick={onClose}>
+
+          <div className="flex justify-end gap-2 pt-1">
+            <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
-            </button>
-            <button type="submit" disabled={createApp.isPending}>
+            </Button>
+            <Button type="submit" disabled={createApp.isPending}>
               {createApp.isPending ? 'Adding...' : 'Add App'}
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

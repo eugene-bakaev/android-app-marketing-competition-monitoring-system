@@ -30,6 +30,7 @@ model App {
   intervalUnit  IntervalUnit
   isActive      Boolean           @default(true)
   lastStatus    ScreenshotStatus?
+  lastCheckedAt DateTime?
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
   screenshots   Screenshot[]
