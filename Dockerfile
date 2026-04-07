@@ -2,6 +2,7 @@ FROM node:20-slim AS base
 
 RUN apt-get update && apt-get install -y \
     chromium \
+    curl \
     fonts-liberation \
     libasound2 \
     libatk1.0-0 \
@@ -43,7 +44,7 @@ RUN npm run build -w packages/api
 RUN npm run build -w packages/worker
 
 FROM base AS api
-CMD ["node", "packages/api/dist/index.js"]
+CMD ["sh", "-c", "./packages/api/node_modules/.bin/prisma migrate deploy && node packages/api/dist/index.js"]
 
 FROM base AS worker
 CMD ["node", "packages/worker/dist/index.js"]

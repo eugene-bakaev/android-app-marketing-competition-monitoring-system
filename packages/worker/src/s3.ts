@@ -29,8 +29,7 @@ export async function uploadScreenshot(key: string, buffer: Buffer): Promise<str
     const filePath = path.join(LOCAL_SCREENSHOTS_DIR, key);
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, buffer);
-    const apiBase = process.env.API_URL || 'http://localhost:3000';
-    return `${apiBase}/screenshots/${key}`;
+    return `/screenshots/${key}`;
   }
 
   await s3.send(
