@@ -12,6 +12,10 @@ COPY packages/shared/ packages/shared/
 RUN npm run build -w packages/shared
 
 COPY packages/web/ packages/web/
+
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
 RUN npm run build -w packages/web
 
 FROM nginx:alpine
