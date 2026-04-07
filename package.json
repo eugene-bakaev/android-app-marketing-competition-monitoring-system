@@ -1,0 +1,21 @@
+{
+  "name": "app-monitor",
+  "private": true,
+  "workspaces": [
+    "packages/shared",
+    "packages/api",
+    "packages/worker",
+    "packages/web"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev:api": "npm run dev -w packages/api",
+    "dev:worker": "npm run dev -w packages/worker",
+    "dev:web": "npm run dev -w packages/web",
+    "start:api": "npm run start -w packages/api",
+    "start:worker": "npm run start -w packages/worker",
+    "db:migrate": "npx prisma migrate deploy",
+    "db:generate": "npx prisma generate",
+    "test": "npm run test --workspaces --if-present"
+  }
+}
