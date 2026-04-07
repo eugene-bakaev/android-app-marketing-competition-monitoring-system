@@ -69,7 +69,6 @@ export function AddAppModal({ open, onClose }: AddAppModalProps) {
               id="app-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Call of Duty Mobile"
               required
               autoFocus
             />
@@ -82,12 +81,11 @@ export function AddAppModal({ open, onClose }: AddAppModalProps) {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               onBlur={() => setUrlTouched(true)}
-              placeholder="https://play.google.com/store/apps/details?id=..."
               required
               className={urlError ? 'border-destructive focus-visible:ring-destructive' : ''}
             />
             {urlError && (
-              <p className="text-xs text-destructive">{urlError}</p>
+              <p className='text-xs text-destructive'>{urlError}</p>
             )}
           </div>
 
