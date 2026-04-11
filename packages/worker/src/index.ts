@@ -3,6 +3,7 @@ import IORedis from 'ioredis';
 import { config } from './config';
 import { prisma } from './prisma';
 import { processScreenshotJob } from './processor';
+import { closeBrowser } from './scraper';
 
 async function main() {
   await prisma.$connect();
@@ -28,6 +29,7 @@ async function main() {
   const shutdown = async () => {
     console.log('Shutting down worker...');
     await worker.close();
+    await closeBrowser();
     await prisma.$disconnect();
     process.exit(0);
   };

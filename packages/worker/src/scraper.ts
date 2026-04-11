@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer, { Browser } from 'puppeteer';
 import { config } from './config';
 
 export interface ScrapeResult {
@@ -6,17 +6,39 @@ export interface ScrapeResult {
   iconUrl: string | null;
 }
 
-export async function scrapePlayStorePage(url: string): Promise<ScrapeResult> {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-    ],
-  });
+const LAUNCH_ARGS = [
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--disable-dev-shm-usage',
+  '--disable-gpu',
+  '--no-zygote',
+];
 
+let _browser: Browser | null = null;
+
+async function getBrowser(): Promise<Browser> {
+  if (_browser && _browser.connected) {
+    return _browser;
+  }
+  _browser = await puppeteer.launch({
+    headless: true,
+    args: LAUNCH_ARGS,
+  });
+  _browser.on('disconnected', () => {
+    _browser = null;
+  });
+  return _browser;
+}
+
+export async function closeBrowser(): Promise<void> {
+  if (_browser) {
+    await _browser.close();
+    _browser = null;
+  }
+}
+
+export async function scrapePlayStorePage(url: string): Promise<ScrapeResult> {
+  const browser = await getBrowser();
   const page = await browser.newPage();
 
   try {
@@ -46,6 +68,5 @@ export async function scrapePlayStorePage(url: string): Promise<ScrapeResult> {
     return { screenshot: Buffer.from(screenshot), iconUrl };
   } finally {
     await page.close();
-    await browser.close();
   }
 }
