@@ -20,6 +20,10 @@ export async function addScreenshotJob(
     {
       name: 'take-screenshot',
       data: { appId },
+      opts: {
+        removeOnComplete: true,
+        removeOnFail: { count: 50 },
+      },
     }
   );
 }

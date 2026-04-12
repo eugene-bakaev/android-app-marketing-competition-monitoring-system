@@ -14,6 +14,10 @@ async function main() {
   const worker = new Worker('screenshots', processScreenshotJob, {
     connection,
     concurrency: config.concurrency,
+    stalledInterval: 5 * 60 * 1000,  // check for stalled jobs every 5 min (default: 30s)
+    drainDelay: 30,                   // wait 30s before re-polling an empty queue (default: 5ms)
+    removeOnComplete: { count: 0 },   // don't keep completed jobs in Redis
+    removeOnFail: { count: 50 },      // keep only last 50 failed jobs for debugging
   });
 
   worker.on('completed', (job) => {
