@@ -6,11 +6,11 @@ import type { IntervalUnit } from '@app-monitor/shared';
 
 async function syncSchedulers() {
   // Clean orphaned repeat keys, then re-register only active apps
-  const existing = await screenshotQueue.getRepeatableJobs();
-  for (const job of existing) {
-    await screenshotQueue.removeRepeatableByKey(job.key);
+  const existing = await screenshotQueue.getJobSchedulers();
+  for (const scheduler of existing) {
+    await screenshotQueue.removeJobScheduler(scheduler.key);
   }
-  console.log(`Cleared ${existing.length} existing repeatable jobs`);
+  console.log(`Cleared ${existing.length} existing job schedulers`);
 
   const activeApps = await prisma.app.findMany({ where: { isActive: true } });
   for (const a of activeApps) {

@@ -67,7 +67,7 @@ export function AppListPage() {
         </div>
       )}
 
-      <AddAppModal open={showAddModal} onClose={() => setShowAddModal(false)} />
+      <AddAppModal key={String(showAddModal)} open={showAddModal} onClose={() => setShowAddModal(false)} />
     </div>
   );
 }
